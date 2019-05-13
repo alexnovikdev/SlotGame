@@ -72,8 +72,8 @@ function setup() {
     btn = new PIXI.Sprite(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
     btn.interactive = true;
     btn.on("pointerdown", onDown);
-    app.stage.addChild(reelContainer);
     app.stage.addChild(background);
+    app.stage.addChild(reelContainer);
     app.stage.addChild(frame);
     app.stage.addChild(btn);
     updateSettings();
@@ -117,6 +117,28 @@ function updateSettings() {
     settings.scale = Math.min(scaleX, scaleY);
 }
 function onSizeChange() {
+    if (reelContainer !== undefined && reelContainer !== null) {
+        reelContainer.x = (settings.gameWidth - reelContainer.width) / 2;
+        reelContainer.y = reelContainer.height / 7;
+        if (btn !== undefined && btn !== null) {
+            btn.x = reelContainer.x + reelContainer.width - btn.width;
+            btn.y = reelContainer.y + reelContainer.height + btn.height * .3;
+        }
+        if (frame !== undefined && frame !== null) {
+            frame.anchor.set(0.5, 0.5);
+            frame.x = reelContainer.x + reelContainer.width * .51;
+            frame.y = reelContainer.y + reelContainer.height * .48;
+            frame.width = reelContainer.width * 1.19;
+            frame.height = reelContainer.height * 1.2;
+        }
+        if (background !== undefined && background !== null) {
+            background.anchor.set(0.5, 0.5);
+            background.x = reelContainer.x + reelContainer.width * .5;
+            background.y = reelContainer.y + reelContainer.height * .5;
+            background.width = reelContainer.width * 1.1;
+            background.height = reelContainer.height * 1.1;
+        }
+    }
 }
 function gameLoop(delta) {
 }
