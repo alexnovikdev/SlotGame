@@ -30,6 +30,8 @@ var config = {
 var background = null;
 var frame = null;
 var btn = null;
+var buttonFrames = [];
+var buttonAnimation = null;
 var slotTextures = [];
 var reelContainer = null;
 PIXI.loader.add([
@@ -66,24 +68,42 @@ function setup() {
         }
         slotTextures.push(PIXI.loader.resources[target].texture);
     }
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_pressed.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_disable.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_disable.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_pressed.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
+    buttonAnimation = new PIXI.extras.AnimatedSprite(buttonFrames);
+    buttonAnimation.animationSpeed = 0.4;
+    buttonAnimation.loop = false;
     createReels();
     background = new PIXI.Sprite(PIXI.loader.resources["/img/winningFrameBackground.jpg"].texture);
     frame = new PIXI.Sprite(PIXI.loader.resources["/img/slotOverlay.png"].texture);
-    btn = new PIXI.Sprite(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
+    btn = new PIXI.Sprite(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
     btn.interactive = true;
     btn.on("pointerdown", onDown);
     app.stage.addChild(background);
     app.stage.addChild(reelContainer);
     app.stage.addChild(frame);
+    app.stage.addChild(buttonAnimation);
     app.stage.addChild(btn);
     updateSettings();
     onSizeChange();
     app.ticker.add(function (delta) { return gameLoop(delta); });
 }
 function onDown() {
+    btn.interactive = false;
+    buttonAnimation.gotoAndPlay(0);
+    buttonAnimation.onComplete = function () {
+        btn.interactive = true;
+    };
     spin();
 }
 function spin() {
+    console.log("spin");
 }
 function createReels() {
     reelContainer = new PIXI.Container();
@@ -121,8 +141,13 @@ function onSizeChange() {
         reelContainer.x = (settings.gameWidth - reelContainer.width) / 2;
         reelContainer.y = reelContainer.height / 7;
         if (btn !== undefined && btn !== null) {
+            btn.alpha = 0;
             btn.x = reelContainer.x + reelContainer.width - btn.width;
             btn.y = reelContainer.y + reelContainer.height + btn.height * .3;
+            if (buttonAnimation !== undefined && buttonAnimation !== null) {
+                buttonAnimation.x = btn.x;
+                buttonAnimation.y = btn.y;
+            }
         }
         if (frame !== undefined && frame !== null) {
             frame.anchor.set(0.5, 0.5);

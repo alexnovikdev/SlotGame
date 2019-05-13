@@ -39,6 +39,9 @@ let background = null;
 let frame = null;
 let btn = null;
 
+let buttonFrames = [];
+let buttonAnimation = null;
+
 let slotTextures = [];
 
 let reelContainer = null;
@@ -85,6 +88,20 @@ function setup() {
         slotTextures.push(PIXI.loader.resources[target].texture);
     }
 
+
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_pressed.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_disable.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_disable.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_pressed.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_normal.png"].texture);
+    buttonFrames.push(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
+
+    buttonAnimation = new PIXI.extras.AnimatedSprite(buttonFrames);
+    buttonAnimation.animationSpeed = 0.4;
+    buttonAnimation.loop = false;
+
     createReels();
 
     background = new PIXI.Sprite(
@@ -96,7 +113,7 @@ function setup() {
     );
 
     btn = new PIXI.Sprite(
-        PIXI.loader.resources["/img/btn_spin_normal.png"].texture
+        PIXI.loader.resources["/img/btn_spin_hover.png"].texture
     );
 
     btn.interactive = true;
@@ -107,6 +124,7 @@ function setup() {
     app.stage.addChild(background);
     app.stage.addChild(reelContainer);
     app.stage.addChild(frame);
+    app.stage.addChild(buttonAnimation);
     app.stage.addChild(btn);
 
     updateSettings();
@@ -117,10 +135,19 @@ function setup() {
 }
 
 function onDown() {
+    btn.interactive = false;
+
+    buttonAnimation.gotoAndPlay(0);
+
+    buttonAnimation.onComplete = () => {
+        btn.interactive = true;
+    };
+
     spin();
 }
 
 function spin() {
+    console.log("spin")
 }
 
 function createReels() {
@@ -173,8 +200,15 @@ function onSizeChange() {
         reelContainer.y = reelContainer.height / 7;
 
         if (btn !== undefined && btn !== null) {
+            btn.alpha = 0;
+
             btn.x = reelContainer.x + reelContainer.width - btn.width;
             btn.y = reelContainer.y + reelContainer.height + btn.height * .3;
+
+            if (buttonAnimation !== undefined && buttonAnimation !== null) {
+                buttonAnimation.x = btn.x;
+                buttonAnimation.y = btn.y;
+            }
         }
 
         if (frame !== undefined && frame !== null) {
