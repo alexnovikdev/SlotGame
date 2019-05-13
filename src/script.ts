@@ -6,8 +6,6 @@ let app = new PIXI.Application({
     resolution: 1
 });
 
-console.log(11111)
-
 document.body.appendChild(app.view);
 
 app.renderer.backgroundColor = 0x000000;
@@ -29,10 +27,42 @@ let settings = {
     defaultHeight: 1136
 };
 
+let config = {
+    slotImageNumber: 13,
+    reelWidth: 160,
+    symbolSize: 150,
+    colNumber: 5,
+    rowNumber: 4,
+};
+
+let background = null;
+let frame = null;
 let btn = null;
 
+let slotTextures = [];
+
+let reelContainer = null;
+
 PIXI.loader.add([
-    "/images/btn.png"
+    "/img/01.png",
+    "/img/02.png",
+    "/img/03.png",
+    "/img/04.png",
+    "/img/05.png",
+    "/img/06.png",
+    "/img/07.png",
+    "/img/08.png",
+    "/img/09.png",
+    "/img/10.png",
+    "/img/11.png",
+    "/img/12.png",
+    "/img/13.png",
+    "/img/btn_spin_disable.png",
+    "/img/btn_spin_hover.png",
+    "/img/btn_spin_normal.png",
+    "/img/btn_spin_pressed.png",
+    "/img/slotOverlay.png",
+    "/img/winningFrameBackground.jpg",
 ]).on("progress", loadProgressHandler).load(setup);
 
 function loadProgressHandler(loader, resource) {
@@ -41,14 +71,42 @@ function loadProgressHandler(loader, resource) {
 }
 
 function setup() {
+
+    for (let i = 1; i <= config.slotImageNumber; i++) {
+
+        let target = "";
+
+        if (i < 10) {
+            target = "/img/0" + i + ".png";
+        } else {
+            target = "/img/" + i + ".png";
+        }
+
+        slotTextures.push(PIXI.loader.resources[target].texture);
+    }
+
+    createReels();
+
+    background = new PIXI.Sprite(
+        PIXI.loader.resources["/img/winningFrameBackground.jpg"].texture
+    );
+
+    frame = new PIXI.Sprite(
+        PIXI.loader.resources["/img/slotOverlay.png"].texture
+    );
+
     btn = new PIXI.Sprite(
-        PIXI.loader.resources["/images/btn.png"].texture
+        PIXI.loader.resources["/img/btn_spin_normal.png"].texture
     );
 
     btn.interactive = true;
 
     btn.on("pointerdown", onDown);
 
+    app.stage.addChild(reelContainer);
+    
+    app.stage.addChild(background);
+    app.stage.addChild(frame);
     app.stage.addChild(btn);
 
     updateSettings();
@@ -63,6 +121,31 @@ function onDown() {
 }
 
 function spin() {
+}
+
+function createReels() {
+    reelContainer = new PIXI.Container();
+
+    for (let i = 0; i < config.colNumber; i ++) {
+
+        let reelCol = new PIXI.Container();
+
+        reelCol.x = i * config.reelWidth;
+
+        reelContainer.addChild(reelCol);
+
+        for (let j = 0; j < config.rowNumber; j++) {
+
+            let symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
+
+            symbol.y = j * config.symbolSize;
+            symbol.scale.x = symbol.scale.y = Math.min(config.symbolSize / symbol.width, config.symbolSize / symbol.height);
+            symbol.x = Math.round((config.reelWidth - symbol.width) / 2);
+
+            reelCol.addChild(symbol);
+        }
+
+    }
 }
 
 function updateSettings() {
