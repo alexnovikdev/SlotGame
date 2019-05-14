@@ -22,10 +22,10 @@ var settings = {
 };
 var config = {
     slotImageNumber: 13,
-    reelWidth: 160,
+    reelWidth: 170,
     symbolSize: 150,
     colNumber: 5,
-    rowNumber: 4
+    rowNumber: 5
 };
 var background = null;
 var frame = null;
@@ -140,7 +140,7 @@ function createReels() {
             var symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
             symbol.y = j * config.symbolSize;
             symbol.scale.x = symbol.scale.y = Math.min(config.symbolSize / symbol.width, config.symbolSize / symbol.height);
-            symbol.x = Math.round((config.reelWidth - symbol.width) / 2);
+            symbol.x = Math.round((config.symbolSize - symbol.width) / 2);
             reel.symbols.push(symbol);
             reelCol.addChild(symbol);
         }
@@ -184,15 +184,29 @@ function onSizeChange() {
             frame.height = reelContainer.height * 1.2;
         }
         if (background !== undefined && background !== null) {
-            background.anchor.set(0.5, 0.5);
-            background.x = reelContainer.x + reelContainer.width * .5;
-            background.y = reelContainer.y + reelContainer.height * .5;
-            background.width = reelContainer.width * 1.1;
-            background.height = reelContainer.height * 1.1;
+            background.x = reelContainer.x;
+            background.y = reelContainer.y;
+            background.width = reelContainer.width;
+            background.height = reelContainer.height;
         }
     }
 }
 function gameLoop(delta) {
+    for (var i = 0; i < reels.length; i++) {
+        var currentReel = reels[i];
+        currentReel.blur.blurY = (currentReel.position - currentReel.previousPosition) * 8;
+        currentReel.previousPosition = currentReel.position;
+        for (var j = 0; j < currentReel.symbols.length; j++) {
+            var currentSymbol = currentReel.symbols[j];
+            var prevY = currentSymbol.y;
+            currentSymbol.y = ((currentReel.position + j) % currentReel.symbols.length) * config.symbolSize - config.symbolSize;
+            if (currentSymbol.y < 0 && prevY > config.symbolSize) {
+                currentSymbol.texture = slotTextures[Math.floor(Math.random() * slotTextures.length)];
+                currentSymbol.scale.x = currentSymbol.scale.y = Math.min(config.symbolSize / currentSymbol.texture.width, config.symbolSize / currentSymbol.texture.height);
+                currentSymbol.x = Math.round((config.symbolSize - currentSymbol.width) / 2);
+            }
+        }
+    }
 }
 var tweening = [];
 function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
