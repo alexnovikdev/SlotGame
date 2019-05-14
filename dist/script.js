@@ -34,6 +34,8 @@ var buttonFrames = [];
 var buttonAnimation = null;
 var slotTextures = [];
 var reelContainer = null;
+var running = false;
+var reels = [];
 PIXI.loader.add([
     "/img/01.png",
     "/img/02.png",
@@ -103,7 +105,20 @@ function onDown() {
     spin();
 }
 function spin() {
-    console.log("spin");
+    if (running) {
+        return;
+    }
+    running = true;
+    for (var i = 0; i < reels.length; i++) {
+        var reel = reels[i];
+        var extra = Math.floor(Math.random() * 3);
+        var target = reel.position + 10 + i * 5 + extra;
+        var time = 2500 + i * 600 + extra * 600;
+        tweenTo(reel, "position", target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
+    }
+}
+function reelsComplete() {
+    running = false;
 }
 function createReels() {
     reelContainer = new PIXI.Container();
@@ -111,13 +126,25 @@ function createReels() {
         var reelCol = new PIXI.Container();
         reelCol.x = i * config.reelWidth;
         reelContainer.addChild(reelCol);
+        var reel = {
+            container: reelCol,
+            symbols: [],
+            position: 0,
+            previousPosition: 0,
+            blur: new PIXI.filters.BlurFilter()
+        };
+        reel.blur.blurX = 0;
+        reel.blur.blurY = 0;
+        reelCol.filters = [reel.blur];
         for (var j = 0; j < config.rowNumber; j++) {
             var symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
             symbol.y = j * config.symbolSize;
             symbol.scale.x = symbol.scale.y = Math.min(config.symbolSize / symbol.width, config.symbolSize / symbol.height);
             symbol.x = Math.round((config.reelWidth - symbol.width) / 2);
+            reel.symbols.push(symbol);
             reelCol.addChild(symbol);
         }
+        reels.push(reel);
     }
 }
 function updateSettings() {
@@ -166,4 +193,46 @@ function onSizeChange() {
     }
 }
 function gameLoop(delta) {
+}
+var tweening = [];
+function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
+    var tween = {
+        object: object,
+        property: property,
+        propertyBeginValue: object[property],
+        target: target,
+        easing: easing,
+        time: time,
+        change: onchange,
+        complete: oncomplete,
+        start: Date.now()
+    };
+    tweening.push(tween);
+    return tween;
+}
+app.ticker.add(function (delta) {
+    var now = Date.now();
+    var remove = [];
+    for (var i = 0; i < tweening.length; i++) {
+        var t = tweening[i];
+        var phase = Math.min(1, (now - t.start) / t.time);
+        t.object[t.property] = lerp(t.propertyBeginValue, t.target, t.easing(phase));
+        if (t.change)
+            t.change(t);
+        if (phase === 1) {
+            t.object[t.property] = t.target;
+            if (t.complete)
+                t.complete(t);
+            remove.push(t);
+        }
+    }
+    for (var i = 0; i < remove.length; i++) {
+        tweening.splice(tweening.indexOf(remove[i]), 1);
+    }
+});
+function lerp(a1, a2, t) {
+    return a1 * (1 - t) + a2 * t;
+}
+function backout(amount) {
+    return function (t) { return (--t * t * ((amount + 1) * t + amount) + 1); };
 }
