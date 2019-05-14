@@ -50,6 +50,9 @@ let running = false;
 
 let reels = [];
 
+let topCover = null;
+let bottomCover = null;
+
 PIXI.loader.add([
     "/img/01.png",
     "/img/02.png",
@@ -107,9 +110,6 @@ function setup() {
     buttonAnimation.loop = false;
 
 
-    createReels();
-
-
     background = new PIXI.Sprite(
         PIXI.loader.resources["/img/winningFrameBackground.jpg"].texture
     );
@@ -125,12 +125,19 @@ function setup() {
     btn.interactive = true;
     btn.on("pointerdown", onDown);
 
+
+    updateSettings();
+    createReels();
+    createCovers();
+
     
     app.stage.addChild(background);
     app.stage.addChild(reelContainer);
     app.stage.addChild(frame);
-    app.stage.addChild(buttonAnimation);
-    app.stage.addChild(btn);
+    app.stage.addChild(topCover);
+    app.stage.addChild(bottomCover);
+    bottomCover.addChild(buttonAnimation);
+    bottomCover.addChild(btn);
 
     updateSettings();
 
@@ -218,6 +225,33 @@ function createReels() {
     }
 }
 
+function createCovers() {
+    if (reelContainer !== undefined && reelContainer !== null) {
+
+        if (topCover !== null) {
+            topCover.destroy();
+        }
+
+        if (bottomCover !== null) {
+            bottomCover.destroy();
+        }
+
+        topCover = new PIXI.Graphics();
+        bottomCover = new PIXI.Graphics();
+
+        topCover.beginFill(0x000000, 1);
+        bottomCover.beginFill(0x000000, 1);
+
+        topCover.drawRect(0, 0, settings.gameWidth, reelContainer.y * 0.95);
+        bottomCover.drawRect(0, (reelContainer.y + reelContainer.height - config.symbolSize) * 1.007, settings.gameWidth, settings.gameHeight - reelContainer.y - reelContainer.height + config.symbolSize);
+
+        app.stage.addChild(topCover);
+        app.stage.addChild(bottomCover);
+        bottomCover.addChild(buttonAnimation);
+        bottomCover.addChild(btn);
+    }   
+}
+
 function updateSettings() {
     settings.gameWidth = app.renderer.view.width;
     settings.gameHeight = app.renderer.view.height;
@@ -241,6 +275,8 @@ function onSizeChange() {
     if (reelContainer !== undefined && reelContainer !== null) {
         reelContainer.x = (settings.gameWidth - reelContainer.width) / 2;
         reelContainer.y = reelContainer.height / 7;
+
+        createCovers();
 
         if (btn !== undefined && btn !== null) {
             btn.alpha = 0;
