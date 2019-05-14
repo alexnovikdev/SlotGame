@@ -246,7 +246,7 @@ function onSizeChange() {
             btn.alpha = 0;
 
             btn.x = reelContainer.x + reelContainer.width - btn.width;
-            btn.y = reelContainer.y + reelContainer.height + btn.height * .3;
+            btn.y = reelContainer.y + reelContainer.height - config.symbolSize + btn.height * .3;
 
             if (buttonAnimation !== undefined && buttonAnimation !== null) {
                 buttonAnimation.x = btn.x;
@@ -255,13 +255,11 @@ function onSizeChange() {
         }
 
         if (frame !== undefined && frame !== null) {
-            frame.anchor.set(0.5, 0.5);
+            frame.x = reelContainer.x - reelContainer.width * 0.03;
+            frame.y = reelContainer.y - reelContainer.height * 0.05;
 
-            frame.x = reelContainer.x + reelContainer.width * .51;
-            frame.y = reelContainer.y + reelContainer.height * .48;
-
-            frame.width = reelContainer.width * 1.19;
-            frame.height = reelContainer.height * 1.2;
+            frame.width = reelContainer.width * 1.075;
+            frame.height = reelContainer.height * 1.075 - config.symbolSize;
         }
 
         if (background !== undefined && background !== null) {
@@ -269,7 +267,7 @@ function onSizeChange() {
             background.y = reelContainer.y;
 
             background.width = reelContainer.width;
-            background.height = reelContainer.height;
+            background.height = reelContainer.height - config.symbolSize;
         }
     }
 
