@@ -66,6 +66,9 @@ let reels = [];
 let topCover = null;
 let bottomCover = null;
 
+let landingSound = null;
+let spinSound = null;
+
 PIXI.loader.add([
     "/img/01.png",
     "/img/02.png",
@@ -139,6 +142,15 @@ function setup() {
     btn.on("pointerdown", onDown);
 
 
+    landingSound = new Howl({
+        src: "/sound/Landing_1.mp3"
+    });
+
+    spinSound = new Howl({
+        src: "/sound/Reel_Spin.mp3"
+    });
+
+
     updateSettings();
     createReels();
     createCovers();
@@ -164,11 +176,9 @@ function onDown() {
 
     buttonAnimation.gotoAndPlay(0);
 
-    buttonAnimation.onComplete = () => {
-        btn.interactive = true;
-    };
-
     spin();
+
+    spinSound.play();
 }
 
 function spin() {
@@ -186,6 +196,10 @@ function spin() {
         let extra = Math.floor(Math.random() * 3);
         let target = reel.position + 10 + i * 5 + extra;
         let time = 2500 + i * 600 + extra * 600;
+
+        setTimeout(() => {
+            landingSound.play();
+        }, time);
         
         tweenTo(reel, "position", target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
 
@@ -195,6 +209,10 @@ function spin() {
 
 function reelsComplete() {
     running = false;
+
+    btn.interactive = true;
+
+    spinSound.stop();
 }
 
 function createReels() {

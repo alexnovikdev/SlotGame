@@ -47,6 +47,8 @@ var running = false;
 var reels = [];
 var topCover = null;
 var bottomCover = null;
+var landingSound = null;
+var spinSound = null;
 PIXI.loader.add([
     "/img/01.png",
     "/img/02.png",
@@ -97,6 +99,12 @@ function setup() {
     btn = new PIXI.Sprite(PIXI.loader.resources["/img/btn_spin_hover.png"].texture);
     btn.interactive = true;
     btn.on("pointerdown", onDown);
+    landingSound = new Howl({
+        src: "/sound/Landing_1.mp3"
+    });
+    spinSound = new Howl({
+        src: "/sound/Reel_Spin.mp3"
+    });
     updateSettings();
     createReels();
     createCovers();
@@ -114,10 +122,8 @@ function setup() {
 function onDown() {
     btn.interactive = false;
     buttonAnimation.gotoAndPlay(0);
-    buttonAnimation.onComplete = function () {
-        btn.interactive = true;
-    };
     spin();
+    spinSound.play();
 }
 function spin() {
     if (running) {
@@ -129,11 +135,16 @@ function spin() {
         var extra = Math.floor(Math.random() * 3);
         var target = reel.position + 10 + i * 5 + extra;
         var time = 2500 + i * 600 + extra * 600;
+        setTimeout(function () {
+            landingSound.play();
+        }, time);
         tweenTo(reel, "position", target, time, backout(0.5), null, i === reels.length - 1 ? reelsComplete : null);
     }
 }
 function reelsComplete() {
     running = false;
+    btn.interactive = true;
+    spinSound.stop();
 }
 function createReels() {
     reelContainer = new PIXI.Container();
