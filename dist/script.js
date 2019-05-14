@@ -16,14 +16,23 @@ window.addEventListener("resize", function (event) {
     updateSettings();
     onSizeChange();
 });
+var adaptiveSize = 0;
+(function getAdaptiveSize() {
+    if (window.innerWidth > window.innerHeight) {
+        adaptiveSize = window.innerHeight / 5.5;
+    }
+    else {
+        adaptiveSize = window.innerWidth / 5;
+    }
+}());
 var settings = {
     defaultWidth: 640,
     defaultHeight: 1136
 };
 var config = {
     slotImageNumber: 13,
-    reelWidth: 170,
-    symbolSize: 150,
+    reelWidth: adaptiveSize,
+    symbolSize: adaptiveSize - 20,
     colNumber: 5,
     rowNumber: 5
 };
@@ -196,11 +205,13 @@ function onSizeChange() {
         createCovers();
         if (btn !== undefined && btn !== null) {
             btn.alpha = 0;
+            btn.scale.set(settings.scale * .8);
             btn.x = reelContainer.x + reelContainer.width - btn.width;
-            btn.y = reelContainer.y + reelContainer.height - config.symbolSize + btn.height * .3;
+            btn.y = reelContainer.y + reelContainer.height - config.symbolSize + btn.height * .1;
             if (buttonAnimation !== undefined && buttonAnimation !== null) {
                 buttonAnimation.x = btn.x;
                 buttonAnimation.y = btn.y;
+                buttonAnimation.scale.set(settings.scale * .8);
             }
         }
         if (frame !== undefined && frame !== null) {
