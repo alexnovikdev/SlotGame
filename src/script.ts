@@ -23,7 +23,7 @@ window.addEventListener("resize", (event) => {
 });
 
 
-let adaptiveSize = 0;
+let adaptiveSize: number = 0;
 
 (function getAdaptiveSize() {
 
@@ -48,26 +48,26 @@ let config = {
     rowNumber: 5,
 };
 
-let background = null;
-let frame = null;
-let btn = null;
+let background: object = null;
+let frame: object = null;
+let btn: object = null;
 
-let buttonFrames = [];
-let buttonAnimation = null;
+let buttonFrames: object[] = [];
+let buttonAnimation: object = null;
 
-let slotTextures = [];
+let slotTextures: object[] = [];
 
-let reelContainer = null;
+let reelContainer: object = null;
 
-let running = false;
+let running: boolean = false;
 
-let reels = [];
+let reels: object[] = [];
 
-let topCover = null;
-let bottomCover = null;
+let topCover: object = null;
+let bottomCover: object = null;
 
-let landingSound = null;
-let spinSound = null;
+let landingSound: object = null;
+let spinSound: object = null;
 
 PIXI.loader.add([
     "/img/01.png",
@@ -91,16 +91,16 @@ PIXI.loader.add([
     "/img/winningFrameBackground.jpg",
 ]).on("progress", loadProgressHandler).load(setup);
 
-function loadProgressHandler(loader, resource) {
+function loadProgressHandler(loader: object, resource: object) {
     //console.log(resource.url);
     //console.log(loader.progress);
 }
 
 function setup() {
 
-    for (let i = 1; i <= config.slotImageNumber; i++) {
+    for (let i: number = 1; i <= config.slotImageNumber; i++) {
 
-        let target = "";
+        let target: string = "";
 
         if (i < 10) {
             target = "/img/0" + i + ".png";
@@ -168,7 +168,7 @@ function setup() {
 
     onSizeChange();
 
-    app.ticker.add(delta => gameLoop(delta));
+    app.ticker.add((delta: number) => gameLoop(delta));
 }
 
 function onDown() {
@@ -189,13 +189,13 @@ function spin() {
 
     running = true;
 
-    for (let i = 0; i < reels.length; i++) {
+    for (let i: number = 0; i < reels.length; i++) {
 
-        let reel = reels[i];
+        let reel: object = reels[i];
 
-        let extra = Math.floor(Math.random() * 3);
-        let target = reel.position + 10 + i * 5 + extra;
-        let time = 2500 + i * 600 + extra * 600;
+        let extra: number = Math.floor(Math.random() * 3);
+        let target: number = reel.position + 10 + i * 5 + extra;
+        let time: number = 2500 + i * 600 + extra * 600;
 
         setTimeout(() => {
             landingSound.play();
@@ -218,9 +218,9 @@ function reelsComplete() {
 function createReels() {
     reelContainer = new PIXI.Container();
 
-    for (let i = 0; i < config.colNumber; i ++) {
+    for (let i: number = 0; i < config.colNumber; i ++) {
 
-        let reelCol = new PIXI.Container();
+        let reelCol: object = new PIXI.Container();
 
         reelCol.x = i * config.reelWidth;
 
@@ -238,9 +238,9 @@ function createReels() {
         reelCol.filters = [reel.blur];
 
 
-        for (let j = 0; j < config.rowNumber; j++) {
+        for (let j: number = 0; j < config.rowNumber; j++) {
 
-            let symbol = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
+            let symbol: object = new PIXI.Sprite(slotTextures[Math.floor(Math.random() * slotTextures.length)]);
 
             symbol.y = j * config.symbolSize;
             symbol.scale.x = symbol.scale.y = Math.min(config.symbolSize / symbol.width, config.symbolSize / symbol.height);
@@ -288,8 +288,8 @@ function updateSettings() {
     settings.gameHeight = app.renderer.view.height;
     settings.isLandscape = settings.gameWidth > settings.gameHeight;
 
-    let scaleX = 0;
-    let scaleY = 0;
+    let scaleX: number = 0;
+    let scaleY: number = 0;
 
     if (settings.isLandscape) {
         scaleX = settings.gameWidth / settings.defaultHeight;
@@ -344,19 +344,19 @@ function onSizeChange() {
 
 }
 
-function gameLoop(delta) { 
-    for (let i = 0; i < reels.length; i++) {
+function gameLoop(delta: number) {
+    for (let i: number = 0; i < reels.length; i++) {
 
-        let currentReel = reels[i];
+        let currentReel: object = reels[i];
 
         currentReel.blur.blurY = (currentReel.position - currentReel.previousPosition) * 8;
         currentReel.previousPosition = currentReel.position;
 
-        for (let j = 0; j < currentReel.symbols.length; j++) {
+        for (let j: number = 0; j < currentReel.symbols.length; j++) {
 
-            let currentSymbol = currentReel.symbols[j];
+            let currentSymbol: object = currentReel.symbols[j];
 
-            let prevY = currentSymbol.y;
+            let prevY: number = currentSymbol.y;
 
             currentSymbol.y = ((currentReel.position + j) % currentReel.symbols.length) * config.symbolSize - config.symbolSize;
 
@@ -375,8 +375,8 @@ function gameLoop(delta) {
 
 //tweens util
 
-const tweening = [];
-function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
+const tweening: object[] = [];
+function tweenTo(object: object, property: string, target: number, time: number, easing: object, onchange: object, oncomplete: object) {
     const tween = {
         object,
         property,
@@ -393,12 +393,12 @@ function tweenTo(object, property, target, time, easing, onchange, oncomplete) {
     return tween;
 }
 
-app.ticker.add((delta) => {
-    const now = Date.now();
-    const remove = [];
+app.ticker.add((delta: number) => {
+    const now: number = Date.now();
+    const remove: object[] = [];
     for (let i = 0; i < tweening.length; i++) {
-        const t = tweening[i];
-        const phase = Math.min(1, (now - t.start) / t.time);
+        const t: object = tweening[i];
+        const phase: number = Math.min(1, (now - t.start) / t.time);
 
         t.object[t.property] = lerp(t.propertyBeginValue, t.target, t.easing(phase));
         if (t.change) t.change(t);
@@ -408,15 +408,15 @@ app.ticker.add((delta) => {
             remove.push(t);
         }
     }
-    for (let i = 0; i < remove.length; i++) {
+    for (let i: number = 0; i < remove.length; i++) {
         tweening.splice(tweening.indexOf(remove[i]), 1);
     }
 });
 
-function lerp(a1, a2, t) {
+function lerp(a1: number, a2: number, t: number) {
     return a1 * (1 - t) + a2 * t;
 }
 
-function backout(amount) {
-    return t => (--t * t * ((amount + 1) * t + amount) + 1);
+function backout(amount: number) {
+    return (t: number) => (--t * t * ((amount + 1) * t + amount) + 1);
 }
